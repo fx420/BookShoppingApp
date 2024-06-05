@@ -1,0 +1,85 @@
+import React, { useState,useEffect } from "react";
+import {View, Text, Image, TouchableOpacity, StyleSheet, ScrollView} from "react-native";
+
+import { getBooks, getDBConnection, } from "../Database/db-service";
+
+import { HomeItem } from "../UI";
+
+const discount = [
+    {
+        discount: '33%',
+    }
+];
+
+const Home =({navigation})=>{
+    const[BookList,setBookList]=useState([]);
+
+    const loadBooks=async()=>{
+        setBookList(await getBooks(await getDBConnection()));
+    };
+
+    useEffect(() => {
+        loadBooks();
+
+    },[]);
+
+    //const imgPath = require('../bookImg/bookcover.jpg');
+
+    const handleBookPress = (book) => {
+        navigation.navigate('Book', { book });
+    };
+    const today = new Date().toLocaleDateString();
+
+    return (
+        <ScrollView contentContainerStyle={styles.container}>
+            <View style={styles.discountContainer}>
+                <Text style={styles.dateText}>{today}</Text>
+                {discount.map((item, index) => (
+                    <Text key={index} style={styles.discountText}>Discount!! {item.discount}!!</Text>
+                ))}
+            </View>
+            <View style={styles.bookList}>
+                {BookList.map((book, index) => (
+                    <TouchableOpacity key={index} style={styles.bookContainer} onPress={() => handleBookPress(book)}>
+                        <HomeItem book={book}/>
+                    </TouchableOpacity>
+                ))}
+            </View>
+        </ScrollView>
+    );
+};
+const styles = StyleSheet.create({
+    container: {
+        flexGrow: 1,
+        paddingVertical: 20,
+        paddingHorizontal: 20,
+    },
+    discountContainer: {
+        alignItems: 'center',
+        marginBottom: 20,
+    },
+    dateText: {
+        fontSize: 26,
+        marginBottom: 10,
+        color: 'black'
+    },
+    discountText: {
+        fontSize: 20,
+        fontWeight: 'bold',
+    },
+    bookList: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'space-between',
+    },
+    bookContainer: {
+        width: '48%',
+        marginBottom: 20,
+        borderWidth: 1,
+        borderColor: '#ccc',
+        borderRadius: 5,
+        alignItems: 'center',
+    },
+    
+});
+export default Home;
